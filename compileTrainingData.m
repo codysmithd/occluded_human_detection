@@ -5,14 +5,19 @@ close all
 %% Compile dataset
 tic
 
-cd('D:\tbgra\Documents\MATLAB\training_data\INRIAPerson\INRIAPerson\96X160H96\Train\pos')
+test_data_index = 1;
 
-pics = dir('*.png');
+dir_path = '../imageSets/INRIAPerson/';
+
+current_dir = strcat(dir_path, '96X160H96/Train/pos/');
+pics = dir(strcat(current_dir, '*.png'));
 
 gmmTraining = struct;% struct to hold image data
+
 for n=1:length(pics)
-    eval([ 'testData.P' num2str(n) '=(rgb2gray(imread(pics(n).name)));']);
-    groups(n) = 1;
+    testData.(strcat('P', num2str(test_data_index))) = rgb2gray(imread(strcat(current_dir, pics(n).name)));
+    groups(test_data_index) = 1;
+    test_data_index = test_data_index + 1;
 end
 
 % cd('D:\tbgra\Documents\MATLAB\training_data\pedestrians128x64')
@@ -27,27 +32,28 @@ end
 
 
 
-% cd('D:\tbgra\Documents\MATLAB\training_data\INRIAPerson\INRIAPerson\Train\neg')
-% 
-% pics = dir();
-% 
-% for k=3:length(pics)
-%     eval([ 'testData.P' num2str(g+n+k-3) '=(rgb2gray(imread(pics(k).name)));']);
-%     eval([ 'testData.P' num2str(g+n+k-3) '= bilinearInterpolation(testData.P' num2str(g+n+k-3) ',[160 96]);']); 
-%     groups(n+g+k-3) = 0;
-% end
+%cd('D:\tbgra\Documents\MATLAB\training_data\INRIAPerson\INRIAPerson\Train\neg')
+
+current_dir = strcat(dir_path, 'Train/neg/');
+pics = dir(strcat(current_dir, '*.png'));
+
+for n=1:length(pics)
+    image = rgb2gray(imread(strcat(current_dir, pics(n).name)));
+    testData.(strcat('P', num2str(test_data_index))) = image(1:160,1:96);
+    groups(test_data_index) = 0;
+    test_data_index = test_data_index + 1;
+end
+
 toc
 
 %% Features 
 tic
-cd ('D:\tbgra\Documents\MATLAB\Image Processing\finalProject')
 d = 1;
-
 
 for i = 1:(length(fieldnames(testData)))
     hogC = [];
     lbpC = [];
-    eval([ 'image = testData.P' num2str(i) ';']);
+    image = testData.(strcat('P', num2str(i)));
     tempSize = size(image);
     stepY = round(tempSize(1)/2);
     stepX = round(tempSize(2)/2);
@@ -71,7 +77,6 @@ for i = 1:(length(fieldnames(testData)))
 end
 
 toc
-
 
 % load('features.mat');
 % load('trainingSet.mat');
