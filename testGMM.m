@@ -28,44 +28,51 @@ bbs=edgeBoxes(I,model,opts);
 %% window testing 
 tic
 
-bestBBS = bbs(1:50,:);
+bestBBS = bbs(1:100,:);
 windowW = 96;
 windowH = 160;
 count = 1;
+
+widthI = size(I,2);
+heightI = size(I,1);
+
 for i = 1: length(bestBBS)
     
-    x1 = bestBBS(i,1);
-    x2 = bestBBS(i,1)+bestBBS(i,3)-1;
-    y1 = bestBBS(i,2);
-    y2 = bestBBS(i,2)+bestBBS(i,4)-1;
+    y1 = bestBBS(i,1);
+    y2 = bestBBS(i,1)+bestBBS(i,3)-1;
+    x1 = bestBBS(i,2);
+    x2 = bestBBS(i,2)+bestBBS(i,4)-1;
     
-    window11 = double(I(x1:x2,y1:y2));
+    if(((x2-x1)*(y2-y1))<(widthI*heightI*0.25))
     
     
-    window11Re = bilinearInterpolation(window11, [160 96] );
-    
-    hogC = [];
-    lbpC = [];
-    tempSize = size(window11Re);
-    stepY = round(tempSize(1)/2);
-    stepX = round(tempSize(2)/2);
-    for c = 1:stepX:tempSize(2)
-        hogV = [];
-        lbpV = [];
-        for v = 1:stepY:tempSize(1)
-            hog = extractHOGFeatures(window11Re,'CellSize',[6 6], 'NumBins',4,'BlockSize',[3 3] );
-            lbp = extractLBPFeatures(window11Re, 'CellSize',[15 15]);
-    
-            hogV = [hogV, hog];
-            lbpV = [lbpV lbp];
+        window11 = double(I(x1:x2,y1:y2));
+
+
+        window11Re = bilinearInterpolation(window11, [160 96] );
+
+        hogC = [];
+        lbpC = [];
+        tempSize = size(window11Re);
+        stepY = round(tempSize(1)/2);
+        stepX = round(tempSize(2)/2);
+        for c = 1:stepX:tempSize(2)
+            hogV = [];
+            lbpV = [];
+            for v = 1:stepY:tempSize(1)
+                hog = extractHOGFeatures(window11Re,'CellSize',[6 6], 'NumBins',4,'BlockSize',[3 3] );
+                lbp = extractLBPFeatures(window11Re, 'CellSize',[15 15]);
+
+                hogV = [hogV, hog];
+                lbpV = [lbpV lbp];
+            end
+            hogC = [hogC, hogV];
+            lbpC = [lbpC,lbpV];
         end
-        hogC = [hogC, hogV];
-        lbpC = [lbpC,lbpV];
+
+        tempFeatures = [lbpC,hogC];
+        [~, predictResult(i,:),~] = predict(svmStruct,tempFeatures);
     end
-    
-    tempFeatures = [lbpC,hogC];
-    [~, predictResult(i,:),~] = predict(svmStruct,tempFeatures);
-    
 %     for winScale = [1 0.75 0.5]
 %         
 %         window11Re = bilinearInterpolation(window11, round(size(window11)*winScale) );
@@ -146,7 +153,7 @@ heatMap = zeros(size(I));
 
 for i=1:length(predictResult)
     
-%     if (predictResult(i)>= -100)
+    if (predictResult(i)~= 0)
         x1 = bestBBS(i,1);
         x2 = bestBBS(i,1)+bestBBS(i,3)-1;
         y1 = bestBBS(i,2);
@@ -160,7 +167,7 @@ for i=1:length(predictResult)
 %         else
             
 %         end
-%     end
+    end
     
     
     
@@ -170,7 +177,7 @@ im(heatMap)
 
 heatMap = heatMap/max(max(heatMap));
 th1 = mean(max(heatMap));
-th2 = 0.5;
+th2 = max(mean(heatMap));
 
 binHeat1 = im2bw(heatMap,th1);
 binHeat2 = im2bw(heatMap,th2);
@@ -183,7 +190,7 @@ im(binHeat2)
 
 %% plotting
 
-labeledImage = bwlabel(binHeat2, 8);
+labeledImage = bwlabel(binHeat1, 8);
 blobMeasurements = regionprops(labeledImage, binHeat1, 'all');
 numberOfBlobs = size(blobMeasurements, 1);
 boundaries = bwboundaries(binHeat1);

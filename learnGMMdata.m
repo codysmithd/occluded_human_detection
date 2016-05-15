@@ -8,7 +8,7 @@ load('trainingData.mat');
 %% Train SVM
 tic
 groups2 = ones(size(features,1),1);
-svmStruct = fitcsvm(features,groups2','KernelScale','auto','Standardize',true,'OutlierFraction',0.15,'CrossVal','on');
+svmStruct = fitcsvm(features,groups2','KernelScale','auto','Standardize',true,'OutlierFraction',0.15);
 toc
 %% Object Proposal
 
