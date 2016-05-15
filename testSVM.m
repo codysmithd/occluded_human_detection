@@ -1,8 +1,6 @@
 clear all
 close all
 
-
-
 load('svmModel.mat');
 %% set detection parameters (can set after training)
 model.opts.multiscale=1;          % for top accuracy set multiscale=1
@@ -21,7 +19,7 @@ opts.eta = .9996;
 opts.minScore = .01;  % min score of boxes to detect
 opts.maxBoxes = 1e4;  % max number of boxes to detect
 
-I = imread('crop_000027.png');
+I = imread('00001147.png');
 
 bbs=edgeBoxes(I,model,opts); 
 
@@ -73,73 +71,6 @@ for i = 1: length(bestBBS)
         tempFeatures = [lbpC,hogC];
         [~, predictResult(i,:),~] = predict(svmStruct,tempFeatures);
     end
-%     for winScale = [1 0.75 0.5]
-%         
-%         window11Re = bilinearInterpolation(window11, round(size(window11)*winScale) );
-%         scaleFac = (1/winScale);
-%         
-%         dim = size(window11Re);
-%         winX = 1;
-%         while  winX <= (dim(2)-(windowW-1))
-%             winY =1;
-%             while  winY <=(dim(1)-windowH-1)
-%                 
-%                     tempWindow = window11Re(winY:(winY+windowH-1),winX:(winX+windowW-1));
-%                     
-%                     
-%                     
-%                     tempSize = size(tempWindow);
-%                     stepY = round(tempSize(1)/4);
-%                     stepX = round(tempSize(2)/4);
-%                     hogC = [];
-%                     for c = 1:stepX:tempSize(2)
-%                         hogV = [];
-%                         for v = 1:stepY:tempSize(1)
-%                             hog = extractHOGFeatures(tempWindow,'CellSize',[6 6], 'NumBins',4,'BlockSize',[3 3] );
-%                             lbp = extractLBPFeatures(tempWindow, 'CellSize',[24 24]);
-% 
-%                             hogV = [hogV, hog];
-%                             
-%                         end
-%                         hogC = [hogC, hogV];
-%                     end
-%                     
-%                     
-%                     
-%                     
-% %                     hog = extractHOGFeatures(tempWindow,'CellSize',[10 10], 'NumBins',4,'BlockSize',[2 2] );
-% %                     lbp = extractLBPFeatures(tempWindow, 'CellSize',[24 24]);
-%                     tempFeatures = [hogC];
-% 
-%                     % PCA
-% %                     zmData = tempFeatures -(ones(size(tempFeatures))*diag(pcaParams.M));
-% %                     vecData = zmData ./ (ones(size(zmData))*diag(pcaParams.S));
-% %                     pcaTempData = vecData * pcaParams.W;
-%                     
-%                     predictResult(count,1:4) = [round(winX*scaleFac+x1) round(winY*scaleFac+y1)...
-%                         round(x1+(winX*scaleFac)+windowW) round(y1+(winY*scaleFac)+windowH)];
-% 
-%                     [~, predictResult(count,5),~] = predict(svmStruct,tempFeatures);
-%                     
-%                     count = count +1;
-%                     
-%                     winY = winY + round(windowH*.33);
-%                     
-%                 
-%             end
-%             
-%             
-%             winX = winX + round(windowW*.33);
-%         end
-%     end
-    
-    
-    
-
-
-    
-
-
 end
 toc
 %% Overlap
@@ -147,9 +78,6 @@ I = double(rgb2gray(I));
 
 dummyI = zeros(size(I));
 heatMap = zeros(size(I));
-
-
-
 
 for i=1:length(predictResult)
     

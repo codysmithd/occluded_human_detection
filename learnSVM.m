@@ -4,7 +4,6 @@ close all
 
 load('trainingData.mat');
 
-
 %% Train SVM
 tic
 groups2 = ones(size(features,1),1);
@@ -22,6 +21,6 @@ opts.normRad = 2;
 
 %% train edge detector (~20m/8Gb per tree, proportional to nPos/nNeg)
 tic, model=edgesTrain(opts); toc; % will load model if already trained
-cd ('D:\tbgra\Documents\MATLAB\Image Processing\finalProject')
+%cd ('D:\tbgra\Documents\MATLAB\Image Processing\finalProject')
 
 save('svmModel.mat','model','svmStruct','-v7.3');
