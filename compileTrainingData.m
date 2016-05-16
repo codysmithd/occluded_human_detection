@@ -20,6 +20,8 @@ for n=1:length(pics)
     test_data_index = test_data_index + 1;
 end
 
+
+
 % cd('D:\tbgra\Documents\MATLAB\training_data\pedestrians128x64')
 % 
 % pics = dir('*.ppm');
@@ -34,15 +36,15 @@ end
 
 %cd('D:\tbgra\Documents\MATLAB\training_data\INRIAPerson\INRIAPerson\Train\neg')
 
-current_dir = strcat(dir_path, 'Train/neg/');
-pics = dir(strcat(current_dir, '*.png'));
-
-for n=1:length(pics)
-    image = rgb2gray(imread(strcat(current_dir, pics(n).name)));
-    testData.(strcat('P', num2str(test_data_index))) = image(1:160,1:96);
-    groups(test_data_index) = 0;
-    test_data_index = test_data_index + 1;
-end
+% current_dir = strcat(dir_path, 'Train/neg/');
+% pics = dir(strcat(current_dir, '*.png'));
+% 
+% for n=1:length(pics)
+%     image = rgb2gray(imread(strcat(current_dir, pics(n).name)));
+%     testData.(strcat('P', num2str(test_data_index))) = image(1:160,1:96);
+%     groups(test_data_index) = 0;
+%     test_data_index = test_data_index + 1;
+% end
 
 toc
 
