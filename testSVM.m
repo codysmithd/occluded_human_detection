@@ -1,6 +1,8 @@
 clear all
 close all
 
+
+
 load('svmModel.mat');
 %% set detection parameters (can set after training)
 model.opts.multiscale=1;          % for top accuracy set multiscale=1
@@ -19,20 +21,24 @@ opts.eta = .9996;
 opts.minScore = .01;  % min score of boxes to detect
 opts.maxBoxes = 1e4;  % max number of boxes to detect
 
-I = imread('00001147.png');
+I = imread('crop_000006.png');
 
 bbs=edgeBoxes(I,model,opts); 
 
 %% window testing 
 tic
 
-bestBBS = bbs(1:100,:);
+bestBBS = bbs(1:25,:);
 windowW = 96;
 windowH = 160;
 count = 1;
 
 widthI = size(I,2);
 heightI = size(I,1);
+
+predictResult = zeros(length(bestBBS),1);
+
+
 
 for i = 1: length(bestBBS)
     
@@ -41,7 +47,7 @@ for i = 1: length(bestBBS)
     x1 = bestBBS(i,2);
     x2 = bestBBS(i,2)+bestBBS(i,4)-1;
     
-    if(((x2-x1)*(y2-y1))<(widthI*heightI*0.25))
+    if(((x2-x1)*(y2-y1))<(widthI*heightI))
     
     
         window11 = double(I(x1:x2,y1:y2));
@@ -62,7 +68,7 @@ for i = 1: length(bestBBS)
                 lbp = extractLBPFeatures(window11Re, 'CellSize',[15 15]);
 
                 hogV = [hogV, hog];
-                lbpV = [lbpV lbp];
+                lbpV = [lbpV, lbp];
             end
             hogC = [hogC, hogV];
             lbpC = [lbpC,lbpV];
@@ -71,13 +77,21 @@ for i = 1: length(bestBBS)
         tempFeatures = [lbpC,hogC];
         [~, predictResult(i,:),~] = predict(svmStruct,tempFeatures);
     end
+  
+
+
 end
 toc
-%% Overlap
+
 I = double(rgb2gray(I));
+
+%% Overlap
 
 dummyI = zeros(size(I));
 heatMap = zeros(size(I));
+
+
+
 
 for i=1:length(predictResult)
     
@@ -103,33 +117,68 @@ end
 figure
 im(heatMap)
 
-heatMap = heatMap/max(max(heatMap));
+heatMap = (heatMap/max(max(heatMap)));
 th1 = mean(max(heatMap));
-th2 = max(mean(heatMap));
 
-binHeat1 = im2bw(heatMap,th1);
-binHeat2 = im2bw(heatMap,th2);
+th4 = multithresh(heatMap,6);
+
+
+binHeat4 = imquantize(heatMap,th4);
+th5 = (max(max(binHeat4))-(max(max(binHeat4))-mean(mean(binHeat4)))*.25)/max(max(binHeat4));
+binHeat5 = im2bw(binHeat4/max(max(binHeat4)),th5);
+
+SE = strel('octagon',15);
+binHeat6 = imdilate(binHeat5,SE);
+
 
 figure
+
 subplot(1,2,1)
-im(binHeat1)
+im(binHeat4)
 subplot(1,2,2)
-im(binHeat2)
+im(binHeat5)
 
 %% plotting
 
-labeledImage = bwlabel(binHeat1, 8);
-blobMeasurements = regionprops(labeledImage, binHeat1, 'all');
-numberOfBlobs = size(blobMeasurements, 1);
-boundaries = bwboundaries(binHeat1);
-boundaries = boundaries{1};
+
 
 figure
 imshow(I,[])
 hold on
-plot(boundaries(:,2),boundaries(:,1),'g','LineWidth',2)
+
+mappingH = binHeat4 ;
+    
+labeledImage = bwlabel(mappingH, 8);
+blobMeasurements = regionprops(labeledImage, mappingH, 'all');
+numberOfBlobs = size(blobMeasurements, 1);
+boundaries = bwboundaries(mappingH);
+for k = 1 : numberOfBlobs
+    thisBoundary = boundaries{k};
+    plot(thisBoundary(:,2), thisBoundary(:,1), 'r', 'LineWidth', 2);
+end
 
 
-        
-   
+mappingH = binHeat5 ;
+    
+labeledImage = bwlabel(mappingH, 8);
+blobMeasurements = regionprops(labeledImage, mappingH, 'all');
+numberOfBlobs = size(blobMeasurements, 1);
+boundaries = bwboundaries(mappingH);
+for k = 1 : numberOfBlobs
+    thisBoundary = boundaries{k};
+    plot(thisBoundary(:,2), thisBoundary(:,1), 'g', 'LineWidth', 2);
+end
+
+
+mappingH = binHeat6 ;
+    
+labeledImage = bwlabel(mappingH, 8);
+blobMeasurements = regionprops(labeledImage, mappingH, 'all');
+numberOfBlobs = size(blobMeasurements, 1);
+boundaries = bwboundaries(mappingH);
+for k = 1 : numberOfBlobs
+    thisBoundary = boundaries{k};
+    plot(thisBoundary(:,2), thisBoundary(:,1), 'b', 'LineWidth', 2);
+end
+
 
