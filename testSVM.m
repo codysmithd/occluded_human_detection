@@ -21,14 +21,14 @@ opts.eta = .9996;
 opts.minScore = .01;  % min score of boxes to detect
 opts.maxBoxes = 1e4;  % max number of boxes to detect
 
-I = imread('crop_000006.png');
+I = imread('crop_000021.png');
 
 bbs=edgeBoxes(I,model,opts); 
 
 %% window testing 
 tic
 
-bestBBS = bbs(1:25,:);
+bestBBS = bbs(1:50,:);
 windowW = 96;
 windowH = 160;
 count = 1;
@@ -146,28 +146,28 @@ figure
 imshow(I,[])
 hold on
 
-mappingH = binHeat4 ;
-    
-labeledImage = bwlabel(mappingH, 8);
-blobMeasurements = regionprops(labeledImage, mappingH, 'all');
-numberOfBlobs = size(blobMeasurements, 1);
-boundaries = bwboundaries(mappingH);
-for k = 1 : numberOfBlobs
-    thisBoundary = boundaries{k};
-    plot(thisBoundary(:,2), thisBoundary(:,1), 'r', 'LineWidth', 2);
-end
-
-
-mappingH = binHeat5 ;
-    
-labeledImage = bwlabel(mappingH, 8);
-blobMeasurements = regionprops(labeledImage, mappingH, 'all');
-numberOfBlobs = size(blobMeasurements, 1);
-boundaries = bwboundaries(mappingH);
-for k = 1 : numberOfBlobs
-    thisBoundary = boundaries{k};
-    plot(thisBoundary(:,2), thisBoundary(:,1), 'g', 'LineWidth', 2);
-end
+% mappingH = binHeat4 ;
+%     
+% labeledImage = bwlabel(mappingH, 8);
+% blobMeasurements = regionprops(labeledImage, mappingH, 'all');
+% numberOfBlobs = size(blobMeasurements, 1);
+% boundaries = bwboundaries(mappingH);
+% for k = 1 : numberOfBlobs
+%     thisBoundary = boundaries{k};
+%     plot(thisBoundary(:,2), thisBoundary(:,1), 'r', 'LineWidth', 2);
+% end
+% 
+% 
+% mappingH = binHeat5 ;
+%     
+% labeledImage = bwlabel(mappingH, 8);
+% blobMeasurements = regionprops(labeledImage, mappingH, 'all');
+% numberOfBlobs = size(blobMeasurements, 1);
+% boundaries = bwboundaries(mappingH);
+% for k = 1 : numberOfBlobs
+%     thisBoundary = boundaries{k};
+%     plot(thisBoundary(:,2), thisBoundary(:,1), 'g', 'LineWidth', 2);
+% end
 
 
 mappingH = binHeat6 ;
