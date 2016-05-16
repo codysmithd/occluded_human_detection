@@ -1,4 +1,4 @@
-function [ humanBlob ] = getHumanBlob( image, classifier, model )
+function [ humanBlob, humanMap, blobMeasurements ] = getHumanBlob( image, classifier, model )
 %GETRESULT Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -102,7 +102,13 @@ th5 = (max(max(binHeat4))-(max(max(binHeat4))-mean(mean(binHeat4)))*.25)/max(max
 binHeat5 = im2bw(binHeat4/max(max(binHeat4)),th5);
 
 SE = strel('octagon',15);
+humanMap = heatMap;
 humanBlob = imdilate(binHeat5,SE);
+
+
+labeledImage = bwlabel(humanBlob, 8); 
+blobMeasurements = regionprops(labeledImage, I, 'all');
+
 
 end
 
